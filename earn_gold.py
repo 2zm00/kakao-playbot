@@ -72,7 +72,7 @@ def parse_sell_result(text, target_list):
                 # 목표 아이템인지 확인 (target_list에 있거나, 검/몽둥이가 대상인 경우)
                 is_target = any(target in item_name for target in target_list)
                 # 검/몽둥이 여부 확인
-                is_common_weapon = "검" in item_name or "뭉둥이" in item_name or "몽둥이" in item_name
+                is_common_weapon = is_target
 
                 # target_list에 명시적으로 있거나, 검/몽둥이가 우리가 찾는 대상에 포함되어 있다면
                 if is_target or is_common_weapon:

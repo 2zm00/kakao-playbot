@@ -143,7 +143,7 @@ def main():
         for _ in range(15): # 최대 15초 대기
             time.sleep(1.0)
             print(".", end="", flush=True)
-            
+            time.sleep(1.0)
             log_text = get_last_chat_log(pos_chat)
             status, new_level = parse_reinforce_result(log_text, current_level)
             
