@@ -69,13 +69,10 @@ def parse_sell_result(text, target_list):
                 
                 print(f"\n >> [감지] 획득 아이템: {item_name}")
 
-                # 목표 아이템인지 확인 (target_list에 있거나, 검/몽둥이가 대상인 경우)
+                # target_list 는 main에서 설정한 필터
                 is_target = any(target in item_name for target in target_list)
-                # 검/몽둥이 여부 확인
-                is_common_weapon = is_target
 
-                # target_list에 명시적으로 있거나, 검/몽둥이가 우리가 찾는 대상에 포함되어 있다면
-                if is_target or is_common_weapon:
+                if is_target:
                     print(f" >> [성공] 대상 아이템 확보: {item_name}")
                     return "TARGET_FOUND"
                 else:
@@ -161,10 +158,9 @@ def main():
             # 초기 상태 확인을 위해 강화 한 번 시도 (아이템 유뮤 체크용)
             send_mention_command(pos_input, "강화")
             send_mention_command(pos_input, "판매")
-            
+            time.sleep(WAIT_REPLY)
             # 응답 대기 (최대 12초)
             for _ in range(12):
-                time.sleep(1.5)
                 log_text = get_last_chat_log(pos_chat)
                 res = parse_sell_result(log_text, target_list)
                 
@@ -187,7 +183,6 @@ def main():
 
             # 응답 대기 (최대 15초)
             for _ in range(15):
-                time.sleep(1.5)
                 log_text = get_last_chat_log(pos_chat)
                 status, new_level = parse_reinforce_result(log_text, current_level)
                 
