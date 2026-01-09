@@ -101,20 +101,20 @@ def parse_reinforce_result(text, last_level):
         line = lines[idx]
         block_text = " ".join(lines[idx : idx + 3])
 
-        if "부족" in block_text or "골드가 부족해" in block_text:
+        if "골드가 부족해" in block_text :
             return "GOLD_SHORTAGE", last_level
         
-        if "성공" in block_text:
+        if "강화 성공" in block_text:
             # 패턴 1: +0 → +1
             match = re.search(r"→\s*\+(\d+)", block_text)
             # 패턴 2: [+1]
             if not match: match = re.search(r"\[\+(\d+)\]", block_text)
             if match: return "SUCCESS", int(match.group(1))
 
-        if "유지" in block_text or "레벨이 유지" in block_text:
+        if "강화 유지" in block_text or "레벨이 유지" in block_text:
             return "MAINTAIN", last_level
         
-        if "파괴" in block_text or "산산조각" in block_text:
+        if "강화 파괴" in block_text or "산산조각" in block_text:
             return "DESTROY", 0
 
     return "NONE", last_level
@@ -158,17 +158,18 @@ def main():
     count = 1
     current_level = 0
 
-    # 초기 상태 확인을 위해 강화 한 번 시도 (아이템 유뮤 체크용)
-    send_mention_command(pos_input, "강화")
+
 
     while True:
         if state == "ACQUIRE":
             print(f"\n[{count}회차] '판매' 전송 (아이템 찾는 중...)")
+            # 초기 상태 확인을 위해 강화 한 번 시도 (아이템 유뮤 체크용)
+            send_mention_command(pos_input, "강화")
             send_mention_command(pos_input, "판매")
             
             # 응답 대기 (최대 12초)
             for _ in range(12):
-                time.sleep(1.0)
+                time.sleep(1.5)
                 log_text = get_last_chat_log(pos_chat)
                 res = parse_sell_result(log_text, target_list)
                 
@@ -190,7 +191,7 @@ def main():
             
             # 응답 대기 (최대 15초)
             for _ in range(15):
-                time.sleep(1.0)
+                time.sleep(1.5)
                 log_text = get_last_chat_log(pos_chat)
                 status, new_level = parse_reinforce_result(log_text, current_level)
                 
