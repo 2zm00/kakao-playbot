@@ -123,7 +123,7 @@ def main():
     print("=== 카카오톡 골드 수급 매크로 (무한 반복) ===")
     
     try:
-        target_input = input(">> 목표 강화 수치를 입력하세요 (기본 15): ").strip()
+        target_input = input(f">> 목표 강화 수치를 입력하세요 (기본 {TARGET_ENFORCE}): ").strip()
         target_enforce = int(target_input) if target_input else TARGET_ENFORCE
     except ValueError:
         target_enforce = TARGET_ENFORCE
