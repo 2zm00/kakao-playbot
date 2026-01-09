@@ -28,15 +28,10 @@ def send_mention_command(input_pos, command):
     time.sleep(0.1)
     
     clipboard_input(BOT_NAME) 
-    time.sleep(DELAY)
-    
     pyautogui.press('tab')
-    time.sleep(DELAY + 0.2) 
-    
     clipboard_input(command)
-    time.sleep(DELAY)
-    
     pyautogui.press('enter')
+    time.sleep(WAIT_REPLY)
 
 def get_last_chat_log(chat_region_pos):
     """채팅 내용을 긁어옵니다."""
@@ -188,7 +183,8 @@ def main():
         elif state == "ENFORCE":
             print(f"\n[{count}회차] '강화' 전송 (현재: +{current_level} / 목표: +{target_enforce})")
             send_mention_command(pos_input, "강화")
-            
+            time.sleep(WAIT_REPLY)
+
             # 응답 대기 (최대 15초)
             for _ in range(15):
                 time.sleep(1.5)
