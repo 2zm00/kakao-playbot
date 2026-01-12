@@ -11,13 +11,13 @@ MY_USER_NAME = config.MY_USER_NAME
 DELAY = 0.5                 # 기본 입력 간격
 WAIT_REPLY = float(config.WAIT_REPLY) # 봇 응답 대기 시간
 TARGET_ENFORCE = int(config.TARGET_ENFORCE)
-BASE_RARE = ["광선검", "핫도그", "칫솔", "주전자", "채찍", "꽃다발", "소시지", "새해 검"]
+BASE_RARE = ["광선검", "핫도그", "칫솔", "주전자", "채찍", "꽃다발", "소시지"]
 
 def clipboard_input(text):
     """클립보드를 이용한 한글 입력 (딜레이 보정)"""
     pyperclip.copy(text)
     time.sleep(0.1) 
-    pyautogui.hotkey('ctrl', 'v')
+    pyautogui.hotkey('command', 'v')
     time.sleep(0.1)
 
 def send_mention_command(input_pos, command):
@@ -28,8 +28,9 @@ def send_mention_command(input_pos, command):
     time.sleep(0.1)
     
     clipboard_input(BOT_NAME) 
-    pyautogui.press('tab')
+    pyautogui.press('enter')
     clipboard_input(command)
+    time.sleep(0.1)
     pyautogui.press('enter')
     time.sleep(WAIT_REPLY)
 
@@ -38,9 +39,9 @@ def get_last_chat_log(chat_region_pos):
     pyautogui.click(chat_region_pos)
     time.sleep(0.1)
     
-    pyautogui.hotkey('ctrl', 'a')
+    pyautogui.hotkey('command', 'a')
     time.sleep(0.1)
-    pyautogui.hotkey('ctrl', 'c')
+    pyautogui.hotkey('command', 'c')
     time.sleep(0.1)
     
     return pyperclip.paste()
@@ -69,10 +70,13 @@ def parse_sell_result(text, target_list):
                 
                 print(f"\n >> [감지] 획득 아이템: {item_name}")
 
-                # target_list 는 main에서 설정한 필터
+                # 목표 아이템인지 확인 (target_list에 있거나, 검/몽둥이가 대상인 경우)
                 is_target = any(target in item_name for target in target_list)
+                # 검/몽둥이 여부 확인
+                is_common_weapon = is_target
 
-                if is_target:
+                # target_list에 명시적으로 있거나, 검/몽둥이가 우리가 찾는 대상에 포함되어 있다면
+                if is_target or is_common_weapon:
                     print(f" >> [성공] 대상 아이템 확보: {item_name}")
                     return "TARGET_FOUND"
                 else:
@@ -158,9 +162,10 @@ def main():
             # 초기 상태 확인을 위해 강화 한 번 시도 (아이템 유뮤 체크용)
             send_mention_command(pos_input, "강화")
             send_mention_command(pos_input, "판매")
-            time.sleep(WAIT_REPLY)
+            
             # 응답 대기 (최대 12초)
             for _ in range(12):
+                time.sleep(1.5)
                 log_text = get_last_chat_log(pos_chat)
                 res = parse_sell_result(log_text, target_list)
                 
@@ -183,6 +188,7 @@ def main():
 
             # 응답 대기 (최대 15초)
             for _ in range(15):
+                time.sleep(1.5)
                 log_text = get_last_chat_log(pos_chat)
                 status, new_level = parse_reinforce_result(log_text, current_level)
                 
@@ -201,7 +207,10 @@ def main():
                         send_mention_command(pos_input, "판매")
                         time.sleep(WAIT_REPLY)
                         state = "ACQUIRE" # 판매 후 다시 아이템 찾기 단계로
-                    
+                    elif status == "MAINTAIN":
+                        send_mention_command(pos_input, "배틀")
+                        time.sleep(WAIT_REPLY)
+                        state = "ENFORCE"
                     break # for 문만 탈출 -> while 문에 의해 다음 턴 진행
             else:
                 # for 문이 break 없이 끝났을 때 (타임아웃)
